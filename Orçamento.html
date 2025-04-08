@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Orçamento de Ar-condicionado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2196F3;
+      --primary-dark: #1976D2;
+      --primary-light: #BBDEFB;
+      --accent-color: #FF9800;
+      --success-color: #4CAF50;
+      --warning-color: #FFC107;
+      --danger-color: #F44336;
+      --gray-light: #f5f5f5;
+      --gray-medium: #e0e0e0;
+      --gray-dark: #757575;
+      --text-color: #333;
+      --text-light: #757575;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+      --border-radius: 8px;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #e4e9f2);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: var(--spacing-lg);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      position: relative;
+    }
+
+    .app-logo {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .app-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 2.2rem;
+      color: var(--primary-dark);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .app-subtitle {
+      font-weight: 300;
+      color: var(--text-light);
+      font-size: 1.1rem;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin-bottom: var(--spacing-xl);
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-header {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: var(--spacing-lg);
+      position: relative;
+    }
+
+    .card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .card-body {
+      padding: var(--spacing-lg);
+    }
+
+    /* Estilos para as abas */
+    .tabs-container {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .tabs-header {
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 2px solid var(--gray-medium);
+      padding-bottom: 1px;
+      margin-bottom: var(--spacing-lg);
+      scrollbar-width: thin;
+    }
+
+    .tabs-header::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .tabs-header::-webkit-scrollbar-thumb {
+      background-color: var(--gray-medium);
+      border-radius: 4px;
+    }
+
+    .tab-button {
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      background: none;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      color: var(--text-light);
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      transition: var(--transition);
+    }
+
+    .tab-button::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background-color: var(--primary-color);
+      transition: width 0.3s ease;
+    }
+
+    .tab-button.active {
+      color: var(--primary-color);
+    }
+
+    .tab-button.active::after {
+      width: 100%;
+    }
+
+    .tab-button:hover:not(.active) {
+      color: var(--primary-dark);
+    }
+
+    .tab-button .icon {
+      font-size: 1.2em;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .progress-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-xl);
+      padding: 0 var(--spacing-md);
+    }
+
+    .progress-step {
+      position: relative;
+      width: 100%;
+      text-align: center;
+    }
+
+    .progress-step::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: -50%;
+      width: 100%;
+      height: 3px;
+      background-color: var(--gray-medium);
+      z-index: 1;
+    }
+
+    .progress-step:first-child::before {
+      display: none;
+    }
+
+    .progress-step.completed::before {
+      background-color: var(--primary-color);
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: var(--gray-medium);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--spacing-sm);
+      position: relative;
+      z-index: 2;
+    }
+
+    .progress-step.active .step-number {
+      background-color: var(--primary-color);
+    }
+
+    .progress-step.completed .step-number {
+      background-color: var(--success-color);
+    }
+
+    .step-label {
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .progress-step.active .step-label {
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .progress-step.completed .step-label {
+      color: var(--success-color);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-col {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--gray-medium);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin: var(--spacing-sm) 0;
+    }
+
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .form-check-label {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .btn {
+      display: inline-block;
+      font-weight: 500;
+      text-align: center;
+      padding: 12px 24px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      color: var(--white);
+    }
+
+    .btn-success:hover {
+      background-color: #3d8b40;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: var(--white);
+    }
+
+    .btn-danger:hover {
+      background-color: #d32f2f;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: var(--gray-medium);
+      margin: var(--spacing-lg) 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .badge-primary {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .badge-success {
+      background-color: #e8f5e9;
+      color: var(--success-color);
+    }
+
+    .badge-warning {
+      background-color: #fff8e1;
+      color: #ff8f00;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .option-card {
+      border: 2px solid var(--gray-medium);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-md);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .option-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary-light);
+    }
+
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+
+    .option-icon {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .option-title {
+      font-weight: 500;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .option-desc {
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .alert {
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .alert-warning {
+      background-color: #fff8e1;
+      color: #ff8f00;
+      border-left: 4px solid #ff8f00;
+    }
+
+    .alert-success {
+      background-color: #e8f5e9;
+      color: var(--success-color);
+      border-left: 4px solid var(--success-color);
+    }
+
+    .slider-container {
+      margin: var(--spacing-md) 0;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .slider-value {
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    .range-slider {
+      width: 100%;
+      height: 8px;
+      background: var(--gray-medium);
+      border-radius: 5px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .info-tip {
+      color: var(--primary-color);
+      cursor: help;
+      position: relative;
+    }
+
+    .info-tip:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-color);
+      color: var(--white);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius);
+      font-size: 0.85rem;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .resultado-container {
+      display: none;
+    }
+
+    .resultado-container.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .orcamento-card {
+      margin-top: var(--spacing-xl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .orcamento-header {
+      padding: var(--spacing-lg);
+      background: var(--primary-dark);
+      color: var(--white);
+      position: relative;
+    }
+
+    .orcamento-numero {
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .orcamento-data {
+      font-size: 0.9rem;
+      margin-bottom: var(--spacing-sm);
+      opacity: 0.9;
+    }
+
+    .orcamento-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .orcamento-validade {
+      font-size: 0.9rem;
+      margin-top: var(--spacing-sm);
+      opacity: 0.9;
+    }
+
+    .orcamento-body {
+      padding: var(--spacing-lg);
+    }
+
+    .orcamento-section {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .orcamento-section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-xs);
+      border-bottom: 1px solid var(--gray-medium);
+    }
+
+    .orcamento-cliente {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    .orcamento-item {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .orcamento-label {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 2px;
+    }
+
+    .orcamento-value {
+      font-weight: 500;
+    }
+
+    .orcamento-tipo {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .orcamento-tipo-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+    }
+
+    .orcamento-tipo-info h4 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .orcamento-tipo-info p {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .orcamento-observacoes {
+      background-color: var(--gray-light);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius);
+      font-style: italic;
+      color: var(--text-light);
+      margin-top: var(--spacing-md);
+    }
+
+    .orcamento-tabela {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--spacing-md) 0;
+    }
+
+    .orcamento-tabela th {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      padding: var(--spacing-sm);
+      text-align: left;
+    }
+
+    .orcamento-tabela td {
+      padding: var(--spacing-sm);
+      border-bottom: 1px solid var(--gray-medium);
+    }
+
+    .orcamento-tabela tr:last-child td {
+      border-bottom: none;
+    }
+
+    .orcamento-tabela .col-valor {
+      text-align: right;
+      font-weight: 500;
+    }
+
+    .orcamento-total {
+      text-align: right;
+      margin-top: var(--spacing-md);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .condicoes {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-top: var(--spacing-lg);
+    }
+
+    .condicoes-title {
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .condicoes ul {
+      padding-left: var(--spacing-lg);
+    }
+
+    .condicoes li {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .assinatura {
+      margin-top: var(--spacing-xl);
+      text-align: center;
+    }
+
+    .linha-assinatura {
+      width: 250px;
+      height: 1px;
+      background-color: var(--text-color);
+      margin: var(--spacing-sm) auto;
+    }
+
+    .features {
+      margin-top: var(--spacing-xl);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .feature-card {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-lg);
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .feature-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .feature-text {
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+
+    /* Estilos para nota fiscal */
+    .nf-section {
+      background-color: var(--gray-light);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .nf-info {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--primary-light);
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+    }
+
+    .nf-opcao {
+      margin-top: var(--spacing-md);
+      border: 1px solid var(--gray-medium);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-md);
+    }
+
+    .nf-opcao-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      cursor: pointer;
+    }
+
+    .nf-opcao-content {
+      padding-left: 30px;
+      display: none;
+    }
+
+    .nf-opcao.active .nf-opcao-content {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .print-only {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 100%;
+      }
+
+      .card {
+        box-shadow: none;
+        margin: 0;
+      }
+
+      .btn, .app-logo, .feature-card, .forms-card, .tabs-header, .progress-indicator {
+        display: none !important;
+      }
+
+      .print-only {
+        display: block;
+      }
+
+      .orcamento-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .resultado-container {
+        display: block !important;
+      }
+
+      .tab-content {
+        display: block !important;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: var(--spacing-sm);
+      }
+
+      .app-title {
+        font-size: 1.8rem;
+      }
+
+      .app-subtitle {
+        font-size: 1rem;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .tabs-header {
+        padding-bottom: 0;
+      }
+
+      .tab-button {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <div class="app-logo">
+        <i class="fas fa-snowflake"></i>
+      </div>
+      <h1 class="app-title">ArCond Pro</h1>
+      <p class="app-subtitle">Sistema Profissional de Orçamentos para Ar-Condicionado</p>
+    </header>
+
+    <div class="card forms-card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-file-invoice"></i> Novo Orçamento</h2>
+      </div>
+      <div class="card-body">
+        <div class="progress-indicator">
+          <div class="progress-step active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-label">Cliente</div>
+          </div>
+          <div class="progress-step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-label">Equipamento</div>
+          </div>
+          <div class="progress-step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-label">Instalação</div>
+          </div>
+          <div class="progress-step" data-step="4">
+            <div class="step-number">4</div>
+            <div class="step-label">Pagamento</div>
+          </div>
+          <div class="progress-step" data-step="5">
+            <div class="step-number">5</div>
+            <div class="step-label">Nota Fiscal</div>
+          </div>
+        </div>
+
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab="cliente">
+              <i class="fas fa-user icon"></i> Cliente
+            </button>
+            <button class="tab-button" data-tab="equipamento">
+              <i class="fas fa-wind icon"></i> Equipamento
+            </button>
+            <button class="tab-button" data-tab="instalacao">
+              <i class="fas fa-tools icon"></i> Instalação
+            </button>
+            <button class="tab-button" data-tab="pagamento">
+              <i class="fas fa-money-bill-wave icon"></i> Pagamento
+            </button>
+            <button class="tab-button" data-tab="notafiscal">
+              <i class="fas fa-file-invoice-dollar icon"></i> Nota Fiscal
+            </button>
+          </div>
+
+          <form id="orcamentoForm">
+            <!-- Tab Cliente -->
+            <div class="tab-content active" id="tab-cliente">
+              <div class="form-row">
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="cliente" class="form-label">Nome do Cliente *</label>
+                    <input type="text" id="cliente" class="form-control" placeholder="Nome completo" required>
+                  </div>
+                </div>
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="telefone" class="form-label">Telefone *</label>
+                    <input type="text" id="telefone" class="form-control" placeholder="(XX) XXXXX-XXXX" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" id="email" class="form-control" placeholder="email@exemplo.com">
+                  </div>
+                </div>
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="endereco" class="form-label">Endereço de Instalação *</label>
+                    <input type="text" id="endereco" class="form-control" placeholder="Endereço completo" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="tecnico" class="form-label">Técnico Responsável *</label>
+                    <input type="text" id="tecnico" class="form-control" placeholder="Nome do técnico" required>
+                  </div>
+                </div>
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="dataOrcamento" class="form-label">Data do Orçamento</label>
+                    <input type="date" id="dataOrcamento" class="form-control">
+                  </div>
+                </div>
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary" onclick="nextTab('equipamento')">
+                  Próximo <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Equipamento -->
+            <div class="tab-content" id="tab-equipamento">
+              <div class="form-group">
+                <label class="form-label">Tipo de Ar-Condicionado</label>
+                <div class="options-grid">
+                  <div class="option-card" data-tipo="split" onclick="selecionarTipo(this)">
+                    <div class="option-icon"><i class="fas fa-wind"></i></div>
+                    <div class="option-title">Split</div>
+                    <div class="option-desc">Ideal para residências e ambientes menores</div>
+                  </div>
+                  <div class="option-card" data-tipo="inverter" onclick="selecionarTipo(this)">
+                    <div class="option-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="option-title">Inverter</div>
+                    <div class="option-desc">Economia de energia e mais silencioso</div>
+                  </div>
+                  <div class="option-card" data-tipo="janela" onclick="selecionarTipo(this)">
+                    <div class="option-icon"><i class="fas fa-square"></i></div>
+                    <div class="option-title">Janela</div>
+                    <div class="option-desc">Solução mais econômica para instalação</div>
+                  </div>
+                  <div class="option-card" data-tipo="cassete" onclick="selecionarTipo(this)">
+                    <div class="option-icon"><i class="fas fa-border-all"></i></div>
+                    <div class="option-title">Cassete</div>
+                    <div class="option-desc">Para embutir no teto, design discreto</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="capacidade" class="form-label">Capacidade (BTUs)</label>
+                <select id="capacidade" class="form-control form-select">
+                  <option value="7000">7.000 BTUs</option>
+                  <option value="9000">9.000 BTUs</option>
+                  <option value="12000" selected>12.000 BTUs</option>
+                  <option value="18000">18.000 BTUs</option>
+                  <option value="22000">22.000 BTUs</option>
+                  <option value="24000">24.000 BTUs</option>
+                  <option value="30000">30.000 BTUs</option>
+                  <option value="36000">36.000 BTUs</option>
+                  <option value="48000">48.000 BTUs</option>
+                  <option value="60000">60.000 BTUs</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="marca" class="form-label">Marca</label>
+                <select id="marca" class="form-control form-select">
+                  <option value="samsung">Samsung</option>
+                  <option value="lg">LG</option>
+                  <option value="electrolux">Electrolux</option>
+                  <option value="midea">Midea</option>
+                  <option value="philco">Philco</option>
+                  <option value="springer">Springer</option>
+                  <option value="consul">Consul</option>
+                  <option value="elgin">Elgin</option>
+                  <option value="comfee">Comfee</option>
+                  <option value="gree">Gree</option>
+                  <option value="daikin">Daikin</option>
+                  <option value="fujitsu">Fujitsu</option>
+                  <option value="hitachi">Hitachi</option>
+                  <option value="outra">Outra</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="distancia" class="form-label">Distância entre unidades (m) <i class="fas fa-info-circle info-tip" data-tip="Distância em metros entre as unidades interna e externa"></i></label>
+                <div class="slider-container">
+                  <div class="slider-label">
+                    <span>1m</span>
+                    <span class="slider-value" id="distanciaValue">5m</span>
+                    <span>15m</span>
+                  </div>
+                  <input type="range" min="1" max="15" value="5" class="range-slider" id="distancia" oninput="atualizarValorSlider('distancia', 'distanciaValue', 'm')">
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-col">
+                  <div class="form-check">
+                    <input type="checkbox" id="possuiKit" class="form-check-input">
+                    <label for="possuiKit" class="form-check-label">Cliente já possui o kit de instalação</label>
+                  </div>
+                </div>
+                <div class="form-col">
+                  <div class="form-check">
+                    <input type="checkbox" id="necessitaSuportes" class="form-check-input">
+                    <label for="necessitaSuportes" class="form-check-label">Necessita de suportes especiais</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline" onclick="prevTab('cliente')">
+                  <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextTab('instalacao')">
+                  Próximo <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Instalação -->
+            <div class="tab-content" id="tab-instalacao">
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                  <strong>Importante:</strong> A inspeção do local pode identificar necessidades adicionais que não estão contempladas neste orçamento inicial.
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="tipoParede" class="form-label">Tipo de Parede</label>
+                    <select id="tipoParede" class="form-control form-select">
+                      <option value="alvenaria">Alvenaria (tijolo/concreto)</option>
+                      <option value="drywall">Drywall / Gesso</option>
+                      <option value="madeira">Madeira</option>
+                      <option value="vidro">Vidro/Espelho</option>
+                      <option value="outro">Outro material</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-col">
+                  <div class="form-group">
+                    <label for="andar" class="form-label">Andar do Imóvel</label>
+                    <select id="andar" class="form-control form-select">
+                      <option value="terreo">Térreo</option>
+                      <option value="primeiro">1º andar</option>
+                      <option value="segundo">2º andar</option>
+                      <option value="terceiro">3º andar</option>
+                      <option value="acima">Acima do 3º andar</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="local" class="form-label">Local de Instalação</label>
+                <select id="local" class="form-control form-select">
+                  <option value="sala">Sala</option>
+                  <option value="quarto">Quarto</option>
+                  <option value="cozinha">Cozinha</option>
+                  <option value="escritorio">Escritório</option>
+                  <option value="comercial">Ambiente Comercial</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="formaAcesso" class="form-label">Forma de Acesso da Unidade Externa <i class="fas fa-info-circle info-tip" data-tip="Como será acessada a área externa para instalação"></i></label>
+                <select id="formaAcesso" class="form-control form-select">
+                  <option value="facil">Fácil acesso (térreo/varanda)</option>
+                  <option value="escada">Necessita escada pequena</option>
+                  <option value="andaime">Necessita andaime</option>
+                  <option value="rapel">Necessita serviço em altura (rapel)</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="observacoes" class="form-label">Observações</label>
+                <textarea id="observacoes" class="form-control" rows="3" placeholder="Informações adicionais, características especiais do local, restrições de horário, etc."></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label for="dataPreferencial" class="form-label">Data Preferencial para Instalação</label>
+                <input type="date" id="dataPreferencial" class="form-control">
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline" onclick="prevTab('equipamento')">
+                  <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextTab('pagamento')">
+                  Próximo <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Pagamento -->
+            <div class="tab-content" id="tab-pagamento">
+              <div class="form-group">
+                <label class="form-label">Forma de Pagamento Preferencial</label>
+                <div class="form-check">
+                  <input type="radio" name="formaPagamento" id="pagDinheiro" value="dinheiro" class="form-check-input" checked>
+                  <label for="pagDinheiro" class="form-check-label">Dinheiro</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" name="formaPagamento" id="pagCartao" value="cartao" class="form-check-input">
+                  <label for="pagCartao" class="form-check-label">Cartão de Crédito/Débito</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" name="formaPagamento" id="pagPix" value="pix" class="form-check-input">
+                  <label for="pagPix" class="form-check-label">PIX</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" name="formaPagamento" id="pagBoleto" value="boleto" class="form-check-input">
+                  <label for="pagBoleto" class="form-check-label">Boleto Bancário</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Condições de Pagamento</label>
+                <select id="condicoesPagamento" class="form-control form-select">
+                  <option value="vista">À vista</option>
+                  <option value="50-50">50% de entrada + 50% na conclusão</option>
+                  <option value="30-70">30% de entrada + 70% na conclusão</option>
+                  <option value="parcela2">Parcelado em 2x</option>
+                  <option value="parcela3">Parcelado em 3x</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="observacoesFinanceiras" class="form-label">Observações sobre Pagamento</label>
+                <textarea id="observacoesFinanceiras" class="form-control" rows="2" placeholder="Desconto especial, prazos, etc."></textarea>
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline" onclick="prevTab('instalacao')">
+                  <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextTab('notafiscal')">
+                  Próximo <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Nota Fiscal -->
+            <div class="tab-content" id="tab-notafiscal">
+              <div class="nf-section">
+                <h3 class="form-label"><i class="fas fa-file-invoice-dollar"></i> Informações para Nota Fiscal</h3>
+                
+                <div class="nf-info">
+                  <p>As opções abaixo definem o tipo de nota fiscal que será emitida para este serviço. Preencha com os dados corretos para evitar problemas fiscais.</p>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Tipo de Cliente</label>
+                  <div class="form-check">
+                    <input type="radio" name="tipoCliente" id="tipoClientePF" value="pf" class="form-check-input" checked onclick="toggleTipoCliente('pf')">
+                    <label for="tipoClientePF" class="form-check-label">Pessoa Física (CPF)</label>
+                  </div>
+                  <div class="form-check">
+                    <input type="radio" name="tipoCliente" id="tipoClientePJ" value="pj" class="form-check-input" onclick="toggleTipoCliente('pj')">
+                    <label for="tipoClientePJ" class="form-check-label">Pessoa Jurídica (CNPJ)</label>
+                  </div>
+                </div>
+                
+                <div class="tipoCliente-content" id="tipoCliente-pf">
+                  <div class="form-row">
+                    <div class="form-col">
+                      <div class="form-group">
+                        <label for="cpf" class="form-label">CPF</label>
+                        <input type="text" id="cpf" class="form-control" placeholder="000.000.000-00">
+                      </div>
+                    </div>
+                    <div class="form-col">
+                      <div class="form-group">
+                        <label for="rgPF" class="form-label">RG (opcional)</label>
+                        <input type="text" id="rgPF" class="form-control" placeholder="00.000.000-0">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="tipoCliente-content" id="tipoCliente-pj" style="display: none;">
+                  <div class="form-row">
+                    <div class="form-col">
+                      <div class="form-group">
+                        <label for="cnpj" class="form-label">CNPJ</label>
+                        <input type="text" id="cnpj" class="form-control" placeholder="00.000.000/0000-00">
+                      </div>
+                    </div>
+                    <div class="form-col">
+                      <div class="form-group">
+                        <label for="razaoSocial" class="form-label">Razão Social</label>
+                        <input type="text" id="razaoSocial" class="form-control" placeholder="Nome da empresa">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="inscricaoEstadual" class="form-label">Inscrição Estadual (opcional)</label>
+                    <input type="text" id="inscricaoEstadual" class="form-control" placeholder="Inscrição Estadual">
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Opções de Nota Fiscal</label>
+                  
+                  <div class="nf-opcao" onclick="toggleOpcao(this)">
+                    <div class="nf-opcao-header">
+                      <input type="radio" name="tipoNF" value="servico" class="form-check-input" checked>
+                      <label class="form-check-label"><strong>Nota Fiscal de Serviço</strong> (apenas instalação)</label>
+                    </div>
+                    <div class="nf-opcao-content">
+                      <p>Emitida pela prestação de serviços de instalação. Não inclui o valor do equipamento.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="nf-opcao" onclick="toggleOpcao(this)">
+                    <div class="nf-opcao-header">
+                      <input type="radio" name="tipoNF" value="completa" class="form-check-input">
+                      <label class="form-check-label"><strong>Nota Fiscal Completa</strong> (equipamento + instalação)</label>
+                    </div>
+                    <div class="nf-opcao-content">
+                      <p>Inclui valor do equipamento e instalação. Recomendado quando o cliente adquire o equipamento através da empresa.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="nf-opcao" onclick="toggleOpcao(this)">
+                    <div class="nf-opcao-header">
+                      <input type="radio" name="tipoNF" value="sem" class="form-check-input">
+                      <label class="form-check-label"><strong>Sem Nota Fiscal</strong> (apenas recibo)</label>
+                    </div>
+                    <div class="nf-opcao-content">
+                      <p>Será fornecido apenas um recibo do serviço. Não recomendado para empresas ou garantia estendida.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <div class="form-check">
+                    <input type="checkbox" id="incluirGarantia" class="form-check-input">
+                    <label for="incluirGarantia" class="form-check-label">Incluir certificado de garantia do serviço (90 dias)</label>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="observacoesNF" class="form-label">Observações para Nota Fiscal</label>
+                  <textarea id="observacoesNF" class="form-control" rows="2" placeholder="Informações adicionais para constar na nota fiscal..."></textarea>
+                </div>
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline" onclick="prevTab('pagamento')">
+                  <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-primary btn-block" onclick="calcularOrcamento()">
+                  <i class="fas fa-calculator"></i> Gerar Orçamento
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="resultado-container" id="resultadoContainer">
+      <div class="card orcamento-card">
+        <div class="orcamento-header">
+          <div class="orcamento-numero">Orçamento #<span id="orcamentoNumero">2025040001</span></div>
+          <div class="orcamento-data">Emitido em: <span id="dataEmissao">08/04/2025</span></div>
+          <h2 class="orcamento-title">Orçamento de Instalação de Ar-Condicionado</h2>
+          <div class="orcamento-validade">Válido por: <span id="validade">15 dias</span></div>
+        </div>
+        
+        <div class="orcamento-body">
+          <div class="orcamento-section">
+            <h3 class="orcamento-section-title">Dados do Cliente</h3>
+            <div class="orcamento-cliente">
+              <div>
+                <div class="orcamento-item">
+                  <div class="orcamento-label">Nome</div>
+                  <div class="orcamento-value" id="clienteResumo">-</div>
+                </div>
+                <div class="orcamento-item">
+                  <div class="orcamento-label">E-mail</div>
+                  <div class="orcamento-value" id="emailResumo">-</div>
+                </div>
+                <div id="nf-info-box" style="display: none;">
+                  <div class="orcamento-item">
+                    <div class="orcamento-label">Documento</div>
+                    <div class="orcamento-value" id="documentoResumo">-</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="orcamento-item">
+                  <div class="orcamento-label">Telefone</div>
+                  <div class="orcamento-value" id="telefoneResumo">-</div>
+                </div>
+                <div class="orcamento-item">
+                  <div class="orcamento-label">Endereço</div>
+                  <div class="orcamento-value" id="enderecoResumo">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="orcamento-section">
+            <h3 class="orcamento-section-title">Equipamento e Instalação</h3>
+            <div class="orcamento-tipo">
+              <div class="orcamento-tipo-icon">
+                <i class="fas fa-snowflake"></i>
+              </div>
+              <div class="orcamento-tipo-info">
+                <h4>Ar-Condicionado <span id="tipoArResumo">Split</span></h4>
+                <p><span id="capacidadeResumo">12.000</span> BTUs • Marca: <span id="marcaResumo">Samsung</span></p>
+                <p>Local: <span id="localResumo">Sala</span> • Distância entre unidades: <span id="distanciaResumo">5m</span></p>
+              </div>
+            </div>
+            
+            <div class="orcamento-observacoes" id="obsResumo">
+              Nenhuma observação adicional.
+            </div>
+          </div>
+          
+          <div class="orcamento-section">
+            <h3 class="orcamento-section-title">Detalhamento de Valores</h3>
+            <table class="orcamento-tabela">
+              <thead>
+                <tr>
+                  <th width="70%">Item</th>
+                  <th width="30%" class="col-valor">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mão de Obra para Instalação</td>
+                  <td class="col-valor" id="maoObra">R$ 0,00</td>
+                </tr>
+                <tr>
+                  <td>Kit de Instalação (<span id="kitDescricao">tubulação, suportes e materiais</span>)</td>
+                  <td class="col-valor" id="kit">R$ 0,00</td>
+                </tr>
+                <tr id="rowSuportesEspeciais" style="display:none">
+                  <td>Suportes Especiais</td>
+                  <td class="col-valor" id="suportesEspeciais">R$ 0,00</td>
+                </tr>
+                <tr id="rowAcessoDificil" style="display:none">
+                  <td>Taxa de Acesso em Altura</td>
+                  <td class="col-valor" id="taxaAcesso">R$ 0,00</td>
+                </tr>
+                <tr>
+                  <td>Deslocamento</td>
+                  <td class="col-valor" id="deslocamento">R$ 0,00</td>
+                </tr>
+                <tr id="rowEquipamento" style="display:none">
+                  <td>Valor do Equipamento</td>
+                  <td class="col-valor" id="valorEquipamento">R$ 0,00</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <div class="orcamento-total">
+              Total: R$ <span id="total">0,00</span>
+            </div>
+          </div>
+          
+          <div class="orcamento-section">
+            <div class="condicoes">
+              <h4 class="condicoes-title">Condições de Serviço</h4>
+              <ul>
+                <li>O serviço inclui instalação completa conforme normas técnicas vigentes.</li>
+                <li id="garantiaItem">Garantia de 90 dias para o serviço de instalação.</li>
+                <li>Pagamento: <span id="condicoesPagamentoResumo">À vista</span></li>
+                <li>Forma de pagamento preferencial: <span id="formaPagamentoResumo">Dinheiro</span></li>
+                <li>Documentação fiscal: <span id="tipoNFResumo">Nota Fiscal de Serviço</span></li>
+                <li>Reagendamentos devem ser solicitados com 24h de antecedência.</li>
+                <li>Este orçamento não inclui obras civis ou adequações elétricas que possam ser necessárias.</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="assinatura">
+            <div class="linha-assinatura"></div>
+            <p><span id="tecnicoResumo">Técnico Responsável</span></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="btn-group text-center">
+        <button class="btn btn-primary" onclick="window.print()">
+          <i class="fas fa-print"></i> Imprimir Orçamento
+        </button>
+        <button class="btn btn-success" onclick="enviarOrcamento()">
+          <i class="fas fa-paper-plane"></i> Enviar por Email
+        </button>
+        <button class="btn btn-danger" onclick="fecharOrcamento()">
+          <i class="fas fa-times"></i> Fechar
+        </button>
+      </div>
+    </div>
+    
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-calculator"></i>
+        </div>
+        <h3 class="feature-title">Cálculo Preciso</h3>
+        <p class="feature-text">Orçamentos detalhados baseados em parâmetros reais de instalação de ar-condicionado.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <h3 class="feature-title">Nota Fiscal Integrada</h3>
+        <p class="feature-text">Emissão facilitada de notas fiscais para serviços e produtos, com diferentes opções.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-print"></i>
+        </div>
+        <h3 class="feature-title">Documentação Profissional</h3>
+        <p class="feature-text">Gere documentos em formato profissional para apresentar aos seus clientes.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Definir a data atual como padrão para o campo de data
+    document.addEventListener('DOMContentLoaded', function() {
+      const hoje = new Date();
+      const dataFormatada = hoje.toISOString().split('T')[0];
+      document.getElementById('dataOrcamento').value = dataFormatada;
+      
+      // Data preferencial com 3 dias a mais
+      const dataPreferencial = new Date();
+      dataPreferencial.setDate(dataPreferencial.getDate() + 3);
+      document.getElementById('dataPreferencial').value = dataPreferencial.toISOString().split('T')[0];
+      
+      // Inicializar número do orçamento
+      const anoAtual = hoje.getFullYear();
+      const mesAtual = String(hoje.getMonth() + 1).padStart(2, '0');
+      const numeroAleatorio = Math.floor(Math.random() * 9000) + 1000;
+      document.getElementById('orcamentoNumero').textContent = `${anoAtual}${mesAtual}${numeroAleatorio}`;
+      
+      // Inicializar data de emissão
+      const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      document.getElementById('dataEmissao').textContent = hoje.toLocaleDateString('pt-BR', options);
+      
+      // Selecionar o primeiro tipo de ar-condicionado por padrão
+      const primeiroTipo = document.querySelector('.option-card');
+      if (primeiroTipo) selecionarTipo(primeiroTipo);
+    });
+    
+    // Funções para navegação das abas
+    function switchTab(tabId) {
+      // Esconder todas as abas e remover classe ativa
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // Mostrar a aba selecionada e ativar botão
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+      
+      // Atualizar indicador de progresso
+      updateProgressStep(tabId);
+    }
+    
+    function nextTab(tabId) {
+      switchTab(tabId);
+    }
+    
+    function prevTab(tabId) {
+      switchTab(tabId);
+    }
+    
+    // Adicionar evento de clique para os botões de aba
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => {
+        switchTab(button.dataset.tab);
+      });
+    });
+    
+    // Atualizar indicador de progresso
+    function updateProgressStep(tabId) {
+      const stepNumber = {
+        'cliente': 1,
+        'equipamento': 2,
+        'instalacao': 3,
+        'pagamento': 4,
+        'notafiscal': 5
+      };
+      
+      const currentStep = stepNumber[tabId];
+      
+      document.querySelectorAll('.progress-step').forEach(step => {
+        const stepNum = parseInt(step.dataset.step);
+        step.classList.remove('active', 'completed');
+        
+        if (stepNum < currentStep) {
+          step.classList.add('completed');
+        } else if (stepNum === currentStep) {
+          step.classList.add('active');
+        }
+      });
+    }
+    
+    // Função para selecionar tipo de ar-condicionado
+    function selecionarTipo(elemento) {
+      // Remover seleção anterior
+      document.querySelectorAll('.option-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Adicionar classe de seleção ao elemento clicado
+      elemento.classList.add('selected');
+    }
+    
+    // Função para atualizar valor do slider
+    function atualizarValorSlider(sliderId, valueId, unidade) {
+      const slider = document.getElementById(sliderId);
+      const valueElement = document.getElementById(valueId);
+      valueElement.textContent = `${slider.value}${unidade}`;
+    }
+    
+    // Função para alternar tipo de cliente (PF/PJ)
+    function toggleTipoCliente(tipo) {
+      document.getElementById('tipoCliente-pf').style.display = tipo === 'pf' ? 'block' : 'none';
+      document.getElementById('tipoCliente-pj').style.display = tipo === 'pj' ? 'block' : 'none';
+    }
+    
+    // Função para alternar visualização das opções de NF
+    function toggleOpcao(elemento) {
+      // Verificar se já está ativo
+      const isActive = elemento.classList.contains('active');
+      
+      // Se não estiver ativo
+      if (!isActive) {
+        // Desativar todos os outros
+        document.querySelectorAll('.nf-opcao').forEach(opcao => {
+          opcao.classList.remove('active');
+        });
+        
+        // Ativar este
+        elemento.classList.add('active');
+        
+        // Marcar o radio button dentro deste elemento
+        const radio = elemento.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+      }
+    }
+    
+    // Função para formatar valores em moeda
+    function formatarMoeda(valor) {
+      return valor.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    
+    // Função para capitalizar primeira letra
+    function capitalizar(texto) {
+      return texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+    
+    // Função para calcular orçamento
+    function calcularOrcamento() {
+      // Obter valores do formulário - Tab Cliente
+      const cliente = document.getElementById('cliente').value;
+      const telefone = document.getElementById('telefone').value;
+      const email = document.getElementById('email').value;
+      const endereco = document.getElementById('endereco').value;
+      const tecnico = document.getElementById('tecnico').value;
+      
+      // Validar campos obrigatórios
+      if (!cliente || !telefone || !tecnico) {
+        alert('Por favor, preencha todos os campos obrigatórios (Nome do Cliente, Telefone e Técnico Responsável).');
+        switchTab('cliente'); // Voltar para a aba de cliente
+        return;
+      }
+      
+      // Obter tipo selecionado
+      let tipoAr = "Split";
+      const tipoSelecionado = document.querySelector('.option-card.selected');
+      if (tipoSelecionado) {
+        tipoAr = capitalizar(tipoSelecionado.dataset.tipo);
+      }
+      
+      // Outros valores - Tab Equipamento
+      const capacidade = document.getElementById('capacidade').value;
+      const marca = document.getElementById('marca').value;
+      const distancia = document.getElementById('distancia').value;
+      const possuiKit = document.getElementById('possuiKit').checked;
+      const necessitaSuportes = document.getElementById('necessitaSuportes').checked;
+      
+      // Valores - Tab Instalação
+      const tipoParede = document.getElementById('tipoParede').value;
+      const andar = document.getElementById('andar').value;
+      const local = document.getElementById('local').value;
+      const formaAcesso = document.getElementById('formaAcesso').value;
+      const observacoes = document.getElementById('observacoes').value;
+      
+      // Valores - Tab Pagamento
+      let formaPagamento = 'Dinheiro';
+      document.querySelectorAll('input[name="formaPagamento"]').forEach(input => {
+        if (input.checked) {
+          switch(input.value) {
+            case 'dinheiro': formaPagamento = 'Dinheiro'; break;
+            case 'cartao': formaPagamento = 'Cartão de Crédito/Débito'; break;
+            case 'pix': formaPagamento = 'PIX'; break;
+            case 'boleto': formaPagamento = 'Boleto Bancário'; break;
+          }
+        }
+      });
+      
+      const condicoesPagamento = document.getElementById('condicoesPagamento').value;
+      let condicoesPagamentoTexto = 'À vista';
+      switch(condicoesPagamento) {
+        case 'vista': condicoesPagamentoTexto = 'À vista'; break;
+        case '50-50': condicoesPagamentoTexto = '50% de entrada + 50% na conclusão'; break;
+        case '30-70': condicoesPagamentoTexto = '30% de entrada + 70% na conclusão'; break;
+        case 'parcela2': condicoesPagamentoTexto = 'Parcelado em 2x'; break;
+        case 'parcela3': condicoesPagamentoTexto = 'Parcelado em 3x'; break;
+      }
+      
+      // Valores - Tab Nota Fiscal
+      const tipoCliente = document.querySelector('input[name="tipoCliente"]:checked').value;
+      const tipoNF = document.querySelector('input[name="tipoNF"]:checked').value;
+      const incluirGarantia = document.getElementById('incluirGarantia').checked;
+      
+      let tipoNFTexto = '';
+      switch(tipoNF) {
+        case 'servico': tipoNFTexto = 'Nota Fiscal de Serviço'; break;
+        case 'completa': tipoNFTexto = 'Nota Fiscal Completa (equipamento e serviço)'; break;
+        case 'sem': tipoNFTexto = 'Recibo Simples (sem NF)'; break;
+      }
+      
+      // Dados do documento (CPF/CNPJ)
+      let documentoTexto = '';
+      let mostrarDocumento = false;
+      
+      if (tipoCliente === 'pf') {
+        const cpf = document.getElementById('cpf').value;
+        if (cpf) {
+          documentoTexto = `CPF: ${cpf}`;
+          mostrarDocumento = true;
+        }
+      } else {
+        const cnpj = document.getElementById('cnpj').value;
+        const razaoSocial = document.getElementById('razaoSocial').value;
+        if (cnpj && razaoSocial) {
+          documentoTexto = `CNPJ: ${cnpj} - ${razaoSocial}`;
+          mostrarDocumento = true;
+        }
+      }
+      
+      // Calcular valores
+      let valorMaoObra = 0;
+      let valorKit = 0;
+      let valorSuportes = 0;
+      let valorTaxaAcesso = 0;
+      let valorDeslocamento = 150; // Valor base de deslocamento
+      let valorEquipamento = 0;
+      
+      // Cálculo baseado na capacidade (BTUs)
+      const capacidadeNum = parseInt(capacidade);
+      
+      // Cálculo da mão de obra
+      if (capacidadeNum <= 9000) {
+        valorMaoObra = 450;
+      } else if (capacidadeNum <= 12000) {
+        valorMaoObra = 550;
+      } else if (capacidadeNum <= 18000) {
+        valorMaoObra = 700;
+      } else if (capacidadeNum <= 24000) {
+        valorMaoObra = 850;
+      } else if (capacidadeNum <= 36000) {
+        valorMaoObra = 1000;
+      } else {
+        valorMaoObra = 1300;
+      }
+      
+      // Ajuste por tipo de ar-condicionado
+      if (tipoAr === 'Inverter') {
+        valorMaoObra *= 1.2; // 20% a mais para inverter
+      } else if (tipoAr === 'Cassete') {
+        valorMaoObra *= 1.5; // 50% a mais para cassete
+      } else if (tipoAr === 'Janela') {
+        valorMaoObra *= 0.8; // 20% a menos para janela
+      }
+      
+      // Cálculo do kit de instalação
+      if (!possuiKit) {
+        valorKit = capacidadeNum <= 12000 ? 250 : (capacidadeNum <= 24000 ? 350 : 500);
+        
+        // Ajuste pela distância
+        const distanciaNum = parseInt(distancia);
+        if (distanciaNum > 5) {
+          valorKit += (distanciaNum - 5) * 30; // R$30 por metro adicional além de 5m
+        }
+      }
+      
+      // Adicional por suportes especiais
+      if (necessitaSuportes) {
+        valorSuportes = 180;
+      }
+      
+      // Taxa de acesso difícil
+      if (formaAcesso === 'andaime') {
+        valorTaxaAcesso = 250;
+      } else if (formaAcesso === 'rapel') {
+        valorTaxaAcesso = 400;
+      }
+      
+      // Ajuste por andar
+      if (andar === 'acima') {
+        valorMaoObra *= 1.15; // 15% a mais para andares acima do 3º
+      }
+      
+      // Ajuste por tipo de parede
+      if (tipoParede === 'drywall') {
+        valorMaoObra *= 0.9; // 10% a menos para drywall
+      } else if (tipoParede === 'vidro') {
+        valorMaoObra *= 1.3; // 30% a mais para vidro
+      }
+      
+      // Adicionar valor do equipamento se for nota fiscal completa
+      if (tipoNF === 'completa') {
+        // Preço base do equipamento por capacidade
+        if (capacidadeNum <= 9000) {
+          valorEquipamento = 1500;
+        } else if (capacidadeNum <= 12000) {
+          valorEquipamento = 1800;
+        } else if (capacidadeNum <= 18000) {
+          valorEquipamento = 2500;
+        } else if (capacidadeNum <= 24000) {
+          valorEquipamento = 3200;
+        } else if (capacidadeNum <= 36000) {
+          valorEquipamento = 4500;
+        } else {
+          valorEquipamento = 6000;
+        }
+        
+        // Ajuste por tipo
+        if (tipoAr === 'Inverter') {
+          valorEquipamento *= 1.4; // 40% a mais para inverter
+        } else if (tipoAr === 'Cassete') {
+          valorEquipamento *= 1.8; // 80% a mais para cassete
+        }
+        
+        // Ajuste pela marca (simplificado)
+        if (['daikin', 'fujitsu', 'hitachi'].includes(marca)) {
+          valorEquipamento *= 1.3; // 30% a mais para marcas premium
+        } else if (['samsung', 'lg', 'midea', 'gree'].includes(marca)) {
+          valorEquipamento *= 1.1; // 10% a mais para marcas intermediárias
+        }
+      }
+      
+      // Cálculo total
+      let valorTotal = valorMaoObra + valorKit + valorSuportes + valorTaxaAcesso + valorDeslocamento;
+      if (tipoNF === 'completa') valorTotal += valorEquipamento;
+      
+      // Preencher resumo - Informações do cliente
+      document.getElementById('clienteResumo').textContent = cliente;
+      document.getElementById('telefoneResumo').textContent = telefone || '-';
+      document.getElementById('emailResumo').textContent = email || '-';
+      document.getElementById('enderecoResumo').textContent = endereco || '-';
+      document.getElementById('documentoResumo').textContent = documentoTexto;
+      document.getElementById('nf-info-box').style.display = mostrarDocumento ? 'block' : 'none';
+      document.getElementById('tecnicoResumo').textContent = tecnico;
+      
+      // Informações do equipamento
+      document.getElementById('tipoArResumo').textContent = tipoAr;
+      document.getElementById('capacidadeResumo').textContent = Number(capacidade).toLocaleString();
+      document.getElementById('marcaResumo').textContent = capitalizar(marca);
+      document.getElementById('localResumo').textContent = capitalizar(local);
+      document.getElementById('distanciaResumo').textContent = `${distancia}m`;
+      document.getElementById('obsResumo').textContent = observacoes || 'Nenhuma observação adicional.';
+      
+      // Informações de pagamento e NF
+      document.getElementById('formaPagamentoResumo').textContent = formaPagamento;
+      document.getElementById('condicoesPagamentoResumo').textContent = condicoesPagamentoTexto;
+      document.getElementById('tipoNFResumo').textContent = tipoNFTexto;
+      document.getElementById('garantiaItem').style.display = incluirGarantia ? 'list-item' : 'none';
+      
+      // Valores
+      document.getElementById('maoObra').textContent = `R$ ${formatarMoeda(valorMaoObra)}`;
+      document.getElementById('kit').textContent = `R$ ${formatarMoeda(valorKit)}`;
+      document.getElementById('kitDescricao').textContent = possuiKit ? 'não incluso - cliente já possui' : 'tubulação, suportes e materiais';
+      document.getElementById('deslocamento').textContent = `R$ ${formatarMoeda(valorDeslocamento)}`;
+      document.getElementById('total').textContent = formatarMoeda(valorTotal);
+      
+      // Configurar elementos condicionais
+      const rowSuportes = document.getElementById('rowSuportesEspeciais');
+      if (necessitaSuportes) {
+        rowSuportes.style.display = 'table-row';
+        document.getElementById('suportesEspeciais').textContent = `R$ ${formatarMoeda(valorSuportes)}`;
+      } else {
+        rowSuportes.style.display = 'none';
+      }
+      
+      const rowAcesso = document.getElementById('rowAcessoDificil');
+      if (valorTaxaAcesso > 0) {
+        rowAcesso.style.display = 'table-row';
+        document.getElementById('taxaAcesso').textContent = `R$ ${formatarMoeda(valorTaxaAcesso)}`;
+      } else {
+        rowAcesso.style.display = 'none';
+      }
+      
+      const rowEquipamento = document.getElementById('rowEquipamento');
+      if (tipoNF === 'completa') {
+        rowEquipamento.style.display = 'table-row';
+        document.getElementById('valorEquipamento').textContent = `R$ ${formatarMoeda(valorEquipamento)}`;
+      } else {
+        rowEquipamento.style.display = 'none';
+      }
+      
+      // Mostrar resultado
+      document.getElementById('resultadoContainer').classList.add('show');
+      
+      // Rolar até o resultado
+      document.getElementById('resultadoContainer').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Função para fechar orçamento
+    function fecharOrcamento() {
+      document.getElementById('resultadoContainer').classList.remove('show');
+    }
+    
+    // Função para enviar orçamento por email (simulada)
+    function enviarOrcamento() {
+      const email = document.getElementById('emailResumo').textContent;
+      if (email === '-' || !email.includes('@')) {
+        alert('Por favor, insira um endereço de e-mail válido para o cliente na aba Cliente.');
+        switchTab('cliente');
+        return;
+      }
+      
+      alert(`O orçamento seria enviado para ${email} em um cenário real. Essa funcionalidade é apenas demonstrativa.`);
+    }
+  </script>
+</body>
+</html>
